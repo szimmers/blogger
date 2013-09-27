@@ -12,14 +12,14 @@ angular.module('bloggerApp', ['services.BlogPostService', 'services.EnvironmentS
 	/**
 	 * route config
 	 */
-    .config(function ($routeProvider) {
-        $routeProvider
-            .when('/', {
-                templateUrl: 'views/main.html',
-                controller: 'MainCtrl',
-                resolve: {
-                	// for main page only, ensure device is ready before resolving (if on a device)
-                    posts: ['Environment', 'BlogPosts', '$location', function(Environment, BlogPosts, $location) {
+	.config(function ($routeProvider) {
+		$routeProvider
+			.when('/', {
+				templateUrl: 'views/main.html',
+				controller: 'MainCtrl',
+				resolve: {
+					// for main page only, ensure device is ready before resolving (if on a device)
+					posts: ['Environment', 'BlogPosts', '$location', function(Environment, BlogPosts, $location) {
 						if (Environment.isNative() === false) {
 							return BlogPosts.get();
 						}
@@ -32,9 +32,9 @@ angular.module('bloggerApp', ['services.BlogPostService', 'services.EnvironmentS
 								return null;
 							});
 						}
-                    }]
-                }
-            })
+					}]
+				}
+			})
 			.when('/new', {
 				templateUrl: 'views/newPost.html',
 				controller: 'NewPostCtrl'
@@ -42,7 +42,7 @@ angular.module('bloggerApp', ['services.BlogPostService', 'services.EnvironmentS
 			.when('/devicenotready', {
 				templateUrl: 'views/deviceNotReady.html'
 			})
-            .otherwise({
-                redirectTo: '/'
-            });
-    });
+			.otherwise({
+				redirectTo: '/'
+			});
+	});
