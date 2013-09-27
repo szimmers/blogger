@@ -1,0 +1,7 @@
+<project default="main">
+	<target name="main">
+		<copy todir="../../installapps/blogger/www">
+			<fileset dir="app" includes="**" />
+		</copy>
+	</target>
+</project>

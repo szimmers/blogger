@@ -1,0 +1,19 @@
+body {
+    background: #fafafa;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333;
+}
+
+/* too much default hero padding, reduce it to look less bad on devices */
+.hero-unit.ng-scope {
+    padding: 20px 20px 20px 20px;
+}
+
+.hero-unit.ng-scope ul {
+    margin-left: 5px;
+}
+
+/* get rid of bullets on ng-repeat items */
+.bullet-less {
+    list-style-type: none;
+}
