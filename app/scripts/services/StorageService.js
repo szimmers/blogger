@@ -3,7 +3,7 @@
 angular.module('services.StorageService', ['services.EnvironmentService'])
 	.service('Storage', function ($q, Environment, $timeout) {
 
-		var _localRead = function(filename) {
+		function _localRead(packagePath, appName) {
 
 			var deferred = $q.defer();
 
@@ -20,188 +20,76 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 			return deferred.promise;
 		}
 
-/*
-		var _cordovaRead = function(filename) {
-
-			var deferred = $q.defer();
-			var dbEntries = [];
-
-			var file = {
-				writer: { available: false },
-				reader: { available: false }
-			};
-
-			function fail(msg) {
-				alert(msg);
-				var error = {'message': msg};
-				//deferred.reject(error);
-			}
-
-			function readText() {
-				if (file.entry) {
-					file.entry.file(function (filename) {
-						var reader = new FileReader();
-						reader.onloadend = function (evt) {
-							alert(evt.target.result);
-							var textArray = evt.target.result.split("\n");
-
-							dbEntries = textArray.concat(dbEntries);
-
-							$timeout(function() {
-								deferred.resolve(dbEntries);
-							});
-						}
-
-						reader.readAsText(filename);
-					});
-				}
-
-				return false;
-			}
-
-			function gotFileEntry(fileEntry) {
-				file.entry = fileEntry;
-				readText();
-			}
-
-			function gotFS(fs) {
-				fs.root.getFile(filename, {create:true, exclusive:false}, gotFileEntry, fail);
-			}
-
-			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
-
-			return deferred.promise;
+		/**
+		 * formats and returns a directory name
+		 */
+		function getDirName(packagePath, appName) {
+			var dirName = packagePath + "." + appName;
+			return dirName;
 		}
-		*/
 
-		/*
-		var _cordovaSave = function(filename, data) {
+		/**
+		 * formats and returns a file name
+		 */
+		function getFileName(appName, key) {
+			var fileName = appName + "." + key;
+			return fileName;
+		}
 
-			var deferred = $q.defer();
+		/**
+		 * formats and returns a file key, used to format a file name
+		 */
+		function getKey(keyFieldName, data) {
+			var key = data[keyFieldName];
+			return key;
+		}
 
-			var file = {
-				writer: { available: false },
-				reader: { available: false }
-			};
-
-			function fail(msg) {
-				alert(msg);
-			}
-
-			function saveText() {
-				if (file.writer.available) {
-					file.writer.available = false;
-					file.writer.object.onwriteend = function (evt) {
-						file.writer.available = true;
-
-						deferred.resolve(data);
-					}
-
-					file.writer.object.seek(writer.length);
-					file.writer.object.write(data);
-				}
-				else {
-					var error = {'message': 'save failed'};
-					deferred.reject(error);
-				}
-			}
-
-			function gotFileWriter(fileWriter) {
-				file.writer.available = true;
-				file.writer.object = fileWriter;
-				saveText(data);
-			}
-
-			function gotFileEntry(fileEntry) {
-				file.entry = fileEntry;
-				fileEntry.createWriter(gotFileWriter, fail);
-				//readText();
-			}
-
-			function gotFS(fs) {
-				fs.root.getFile(filename, {create:true, exclusive:false}, gotFileEntry, fail);
-			}
-
-			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
-
-			return deferred.promise;
-		};
-		*/
-
-		var _cordovaRead = function(filename) {
+		/**
+		 * given the directory and filename, creates a cordova FileEntry object and fulfills its
+		 * promise. both the directory and file are created if they don't exist.
+		 */
+		function getFileEntry(dirName, fileName) {
 
 			var deferred = $q.defer();
 
 			function gotFS(fileSystem) {
-				fileSystem.root.getFile(filename, {create:true, exclusive:false}, gotFileEntry, fail);
+				fileSystem.root.getDirectory(dirName, {create: true, exclusive: false}, gotDirectory, fail);
+			}
+
+			function gotDirectory(directory) {
+				directory.getFile(fileName, {create: true, exclusive: false}, gotFileEntry, fail);
 			}
 
 			function gotFileEntry(fileEntry) {
-				fileEntry.file(gotFile, fail);
+				deferred.resolve(fileEntry);
 			}
 
-			function gotFile(file){
-				readAsText(file);
-			}
-
-			function readAsText(file) {
-				var reader = new FileReader();
-
-				reader.onloadend = function(evt) {
-					var data = evt.target.result;
-					alert('data: ' + JSON.stringify(data));
-
-					var items = data.split('|');
-					alert('items: ' + JSON.stringify(items));
-
-					var items2 = JSON.parse(items);
-					alert('items2: ' + JSON.stringify(items2));
-
-					//deferred.resolve(items);
-					$timeout(function() {
-						deferred.resolve(items);
-					});
-					/*
-					*/
-				};
-
-				reader.readAsText(file);
-			}
-
-			function fail(evt) {
-				alert('read fail: '+ evt.target.error.code);
-				console.log(evt.target.error.code);
-				var errorObject = {'message' : evt.target.error.code};
+			function fail(error) {
+				console.log(error.code);
+				alert('getFileEntry: ' + error.code);
+				var errorObject = {'message' : error.code};
 				deferred.reject(errorObject);
 			}
 
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
 
 			return deferred.promise;
-		};
+		}
 
 		/**
-		 *
+		 * given the directory name (which includes the path and the app name), creates a cordova DirectoryEntry object
+		 * and fulfills its promise. the directory is created if it doesn't exist.
 		 */
-		var _cordovaSave = function(filename, data) {
+		function getDirectoryEntry(dirName) {
 
 			var deferred = $q.defer();
 
 			function gotFS(fileSystem) {
-				fileSystem.root.getFile(filename, {create: true, exclusive: false}, gotFileEntry, fail);
+				fileSystem.root.getDirectory(dirName, {create: true, exclusive: false}, gotDirectoryEntry, fail);
 			}
 
-			function gotFileEntry(fileEntry) {
-				fileEntry.createWriter(gotFileWriter, fail);
-			}
-
-			function gotFileWriter(writer) {
-				writer.onwriteend = function(evt) {
-					deferred.resolve(data);
-				};
-
-				writer.seek(writer.length);
-				writer.write(JSON.stringify(data) + ' | ');
+			function gotDirectoryEntry(directoryEntry) {
+				deferred.resolve(directoryEntry);
 			}
 
 			function fail(error) {
@@ -213,22 +101,160 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
 
 			return deferred.promise;
+		}
+
+		/**
+		 * reads the contents of the file specified by the dirName and filename.
+		 */
+		function _cordovaReadFile(dirName, fileName) {
+
+			var deferred = $q.defer();
+
+			getFileEntry(dirName, fileName).then(function(fileEntry) {
+
+				function gotFile(file) {
+					var reader = new FileReader();
+
+					reader.onloadend = function(evt) {
+						var data = evt.target.result;
+
+						$timeout(function() {
+							deferred.resolve(JSON.parse(data));
+						});
+					}
+
+					reader.readAsText(file);
+				}
+
+				function fail(error) {
+					console.log(error.code);
+					var errorObject = {'message' : error.code};
+					deferred.reject(errorObject);
+				}
+
+				fileEntry.file(gotFile, fail);
+
+			});
+
+			return deferred.promise;
+		}
+
+		/**
+		 * reads the contents of the directory specified by the package and app.
+		 */
+		function _cordovaReadDirectory(packagePath, appName) {
+
+			var deferred = $q.defer();
+
+			var dirName = getDirName(packagePath, appName);
+
+			getDirectoryEntry(dirName).then(function(directoryEntry) {
+
+				function fail(error) {
+					console.log(error.code);
+					var errorObject = {'message' : error.code};
+					deferred.reject(errorObject);
+				}
+
+				var reader = directoryEntry.createReader();
+
+				reader.readEntries(function(entries) {
+					deferred.resolve(entries);
+				}, fail);
+
+			});
+
+			return deferred.promise;
+		}
+
+		/**
+		 * Creates a new file on the filesystem with the name supplied by getFileName().
+		 * The contents of the file is the data.
+		 */
+		var _cordovaSave = function(packagePath, appName, keyFieldName, data) {
+
+			var deferred = $q.defer();
+
+			var dirName = getDirName(packagePath, appName);
+			var key = getKey(keyFieldName, data);
+			var fileName = getFileName(appName, key);
+
+/*
+			alert('data: ' + JSON.stringify(data));
+			alert('keyFieldName: ' + keyFieldName);
+alert('dirName: ' + dirName);
+alert('key: ' + key);
+alert('fileName: ' + fileName);
+*/
+			getFileEntry(dirName, fileName).then(function(fileEntry) {
+
+//alert('got file entry for writing');
+				function gotFileWriter(writer) {
+					writer.onwriteend = function(evt) {
+					//alert('written!');
+						deferred.resolve(data);
+					};
+
+					//alert('trying to write');
+					writer.seek(0);
+					writer.write(JSON.stringify(data));
+				}
+
+				function fail(error) {
+					console.log(error.code);
+					var errorObject = {'message' : error.code};
+					deferred.reject(errorObject);
+				}
+
+				fileEntry.createWriter(gotFileWriter, fail);
+
+			});
+
+			return deferred.promise;
 		};
 
+		/**
+		 * public API
+		 */
 		return {
-			get: function(filename) {
+			get: function(packagePath, appName) {
 				var deferred = $q.defer();
 
 				if (Environment.isNative() === true) {
-					_cordovaRead(filename).then(function(response) {
-						//alert('fulfilled 1:' + response);
-						deferred.resolve(response);
-					}, function(response) {
+					_cordovaReadDirectory(packagePath, appName).then(function(entries) {
+
+						if ((entries == null) || (entries == undefined) || (entries.length == 0)) {
+							deferred.resolve([]);
+						}
+
+						var items = [];
+						var dirName = getDirName(packagePath, appName);
+
+						alert('got ' + entries.length + " items");
+
+						entries.forEach(function(entry, index) {
+							var fileName = entry.name;
+							alert('grabbing: ' + fileName);
+
+							_cordovaReadFile(dirName, fileName).then(function(response) {
+								alert('got data: ' + JSON.stringify(response));
+								items.push(response);
+							}, function(response) {
+								alert('error:' + response.message);
+							});
+
+						})();
+
+alert('loop done, resolving...');
+						deferred.resolve(items);
+alert('resolved');
+
+					}, function (response) {
 						alert('error:' + response.message);
 					});
 				}
 				else {
-					_localRead(filename).then(function(response) {
+					_localRead(packagePath, appName).then(function(response) {
 						deferred.resolve(response);
 					}, function(response) {
 						alert('error:' + response.message);
@@ -238,11 +264,11 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 				return deferred.promise;
 			},
 
-			save: function(filename, data) {
+			save: function(packagePath, appName, keyFieldName, data) {
 				var deferred = $q.defer();
 
 				if (Environment.isNative() === true) {
-					_cordovaSave(filename, data).then(function(response) {
+					_cordovaSave(packagePath, appName, keyFieldName, data).then(function(response) {
 						deferred.resolve(response);
 					});
 				}
