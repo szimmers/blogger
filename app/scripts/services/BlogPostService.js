@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('services.BlogPostService', ['services.StorageService'])
-	.service('BlogPosts', function ($http, $q, Storage) {
+	.constant('FILENAME', 'net.digitalprimates.blogger2')
+	.service('BlogPosts', function ($http, $q, Storage, FILENAME) {
 		// get stores the posts for later retrieval by id
 		var _posts = null;
 		var _uniqueId = 4;
@@ -43,10 +44,13 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 				var deferred = $q.defer();
 
 				if (_posts === null) {
-					Storage.get('blogger').then(function(response) {
-						//alert('data:' + response);
+					Storage.get(FILENAME).then(function(response) {
+						//alert('fulfilled 2:' + response);
 						_posts = response;
 						deferred.resolve(_posts);
+					}, function() {
+						_posts = [];
+						deferred.resolve([]);
 					});
 				}
 				else {
@@ -86,7 +90,7 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 				var that = this;
 				var post = _createPostFromEntry(entry);
 
-				return Storage.save('blogger', post).then(function(response) {
+				return Storage.save(FILENAME, post).then(function(response) {
 					if (_posts === null) {
 						that.get().then(function() {
 							_posts.push(response);

@@ -20,6 +20,7 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 			return deferred.promise;
 		}
 
+/*
 		var _cordovaRead = function(filename) {
 
 			var deferred = $q.defer();
@@ -52,7 +53,7 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 						}
 
 						reader.readAsText(filename);
-					}/*, fail('cannot read')*/);
+					});
 				}
 
 				return false;
@@ -71,7 +72,9 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 
 			return deferred.promise;
 		}
+		*/
 
+		/*
 		var _cordovaSave = function(filename, data) {
 
 			var deferred = $q.defer();
@@ -103,26 +106,6 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 				}
 			}
 
-/*
-			function readText() {
-				if (file.entry) {
-					file.entry.file(function (dbFile) {
-						var reader = new FileReader();
-						reader.onloadend = function (evt) {
-							var textArray = evt.target.result.split("\n");
-
-							dbEntries = textArray.concat(dbEntries);
-
-							$('definitions').innerHTML = dbEntries.join('');
-						}
-						reader.readAsText(dbFile);
-					}, failCB("FileReader"));
-				}
-
-				return false;
-			}
-			*/
-
 			function gotFileWriter(fileWriter) {
 				file.writer.available = true;
 				file.writer.object = fileWriter;
@@ -143,6 +126,94 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 
 			return deferred.promise;
 		};
+		*/
+
+		var _cordovaRead = function(filename) {
+
+			var deferred = $q.defer();
+
+			function gotFS(fileSystem) {
+				fileSystem.root.getFile(filename, {create:true, exclusive:false}, gotFileEntry, fail);
+			}
+
+			function gotFileEntry(fileEntry) {
+				fileEntry.file(gotFile, fail);
+			}
+
+			function gotFile(file){
+				readAsText(file);
+			}
+
+			function readAsText(file) {
+				var reader = new FileReader();
+
+				reader.onloadend = function(evt) {
+					var data = evt.target.result;
+					alert('data: ' + JSON.stringify(data));
+
+					var items = data.split('|');
+					alert('items: ' + JSON.stringify(items));
+
+					var items2 = JSON.parse(items);
+					alert('items2: ' + JSON.stringify(items2));
+
+					//deferred.resolve(items);
+					$timeout(function() {
+						deferred.resolve(items);
+					});
+					/*
+					*/
+				};
+
+				reader.readAsText(file);
+			}
+
+			function fail(evt) {
+				alert('read fail: '+ evt.target.error.code);
+				console.log(evt.target.error.code);
+				var errorObject = {'message' : evt.target.error.code};
+				deferred.reject(errorObject);
+			}
+
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+
+			return deferred.promise;
+		};
+
+		/**
+		 *
+		 */
+		var _cordovaSave = function(filename, data) {
+
+			var deferred = $q.defer();
+
+			function gotFS(fileSystem) {
+				fileSystem.root.getFile(filename, {create: true, exclusive: false}, gotFileEntry, fail);
+			}
+
+			function gotFileEntry(fileEntry) {
+				fileEntry.createWriter(gotFileWriter, fail);
+			}
+
+			function gotFileWriter(writer) {
+				writer.onwriteend = function(evt) {
+					deferred.resolve(data);
+				};
+
+				writer.seek(writer.length);
+				writer.write(JSON.stringify(data) + ' | ');
+			}
+
+			function fail(error) {
+				console.log(error.code);
+				var errorObject = {'message' : error.code};
+				deferred.reject(errorObject);
+			}
+
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+
+			return deferred.promise;
+		};
 
 		return {
 			get: function(filename) {
@@ -150,12 +221,10 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 
 				if (Environment.isNative() === true) {
 					_cordovaRead(filename).then(function(response) {
-						//alert('data:' + response);
+						//alert('fulfilled 1:' + response);
 						deferred.resolve(response);
 					}, function(response) {
 						alert('error:' + response.message);
-					}, function(response) {
-						alert('notify:' + response);
 					});
 				}
 				else {

@@ -19,18 +19,24 @@ angular.module('bloggerApp', ['services.BlogPostService', 'services.EnvironmentS
 				controller: 'MainCtrl',
 				resolve: {
 					// for main page only, ensure device is ready before resolving (if on a device)
-					posts: ['Environment', 'BlogPosts', '$location', function(Environment, BlogPosts, $location) {
+					posts: ['Environment', 'BlogPosts', '$q', '$location', function(Environment, BlogPosts, $q, $location) {
 						if (Environment.isNative() === false) {
 							return BlogPosts.get();
 						}
 						else {
+							var deferred = $q.defer();
+
 							Environment.waitForDeviceReady().then(function() {
-								return BlogPosts.get();
+								BlogPosts.get().then(function(response) {
+									deferred.resolve(response);
+								});
 							}, function(response) {
 								console.log(response.message);
 								$location.path('/devicenotready');
-								return null;
+								deferred.reject(response.message);
 							});
+
+							return deferred.promise;
 						}
 					}]
 				}
