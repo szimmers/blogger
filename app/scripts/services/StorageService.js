@@ -214,6 +214,57 @@ alert('fileName: ' + fileName);
 		};
 
 		/**
+		 * Given the package and app name, read the contents of the directory and return an array
+		 * of saved objects. Each file in the directory represents a saved JSON object. The method
+		 * resolves/rejects the provided $q variable, deferred.
+		 */
+		function getDirectoryContents(packagePath, appName, deferred) {
+
+			// read the directory contents
+			_cordovaReadDirectory(packagePath, appName).then(function(filesInDir) {
+
+				// if the directory is empty, we can resolve with an empty array
+				if ((filesInDir == null) || (filesInDir == undefined) || (filesInDir.length == 0)) {
+					deferred.resolve([]);
+				}
+
+				// otherwise, we need to process each file in the directory by reading its contents
+				var items = [];
+				var dirName = getDirName(packagePath, appName);
+
+				// this is the callback method for the "each", below. it reads the file contents,
+				// pushes the result into the items array, then indicates it's done so the "each"
+				// can continue.
+				var getFileInDir = function(fileInDir, doneCallback) {
+					var fileName = fileInDir.name;
+
+					_cordovaReadFile(dirName, fileName).then(function(response) {
+						//alert('got data: ' + JSON.stringify(response));
+						items.push(response);
+						doneCallback(null);
+					}, function(response) {
+						doneCallback(response.message);
+					});
+				};
+
+				// process each file in series, then executes the closure method to
+				// resolve the promise.
+				async.eachSeries(filesInDir, getFileInDir, function(err) {
+					if (err) {
+						console.log(err);
+					}
+					else {
+						deferred.resolve(items);
+					}
+				});
+
+
+			}, function (response) {
+				alert('error:' + response.message);
+			});
+		}
+
+		/**
 		 * public API
 		 */
 		return {
@@ -221,44 +272,7 @@ alert('fileName: ' + fileName);
 				var deferred = $q.defer();
 
 				if (Environment.isNative() === true) {
-					_cordovaReadDirectory(packagePath, appName).then(function(filesInDir) {
-
-						if ((filesInDir == null) || (filesInDir == undefined) || (filesInDir.length == 0)) {
-							deferred.resolve([]);
-						}
-
-						var items = [];
-						var dirName = getDirName(packagePath, appName);
-
-						alert('got ' + filesInDir.length + ' items');
-
-						var getFileInDir = function(fileInDir, doneCallback) {
-							var fileName = fileInDir.name;
-							alert('grabbing: ' + fileName);
-
-							_cordovaReadFile(dirName, fileName).then(function(response) {
-								alert('got data: ' + JSON.stringify(response));
-								items.push(response);
-								doneCallback(null);
-							}, function(response) {
-								doneCallback(response.message);
-							});
-						};
-
-						async.eachSeries(filesInDir, getFileInDir, function(err) {
-							if (err) {
-								alert('error: ' + err);
-								console.log(err);
-							}
-							else {
-								deferred.resolve(items);
-							}
-						});
-
-
-					}, function (response) {
-						alert('error:' + response.message);
-					});
+					getDirectoryContents(packagePath, appName, deferred);
 				}
 				else {
 					_localRead(packagePath, appName).then(function(response) {
