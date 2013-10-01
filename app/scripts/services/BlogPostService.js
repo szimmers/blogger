@@ -7,7 +7,6 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 	.service('BlogPosts', function ($http, $q, Storage, PACKAGE_PATH, APP_NAME, KEY_FIELDNAME) {
 		// get stores the posts for later retrieval by id
 		var _posts = null;
-		var _uniqueId = 4;
 
 		/**
 		 * given an id, finds the matching post from the previously loaded posts.
@@ -31,8 +30,9 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 		 * given some user-defined text, create and return a blog post
 		 */
 		var _createPostFromEntry = function(entry) {
-			var newPost = {'entry': entry, 'creationDate': new Date(), 'uniqueId': _uniqueId};
-			_uniqueId++;
+			// uniqueId is our key for storage, they need to be unique
+			var uniqueId = Math.floor((Math.random() * 10000) + 1);
+			var newPost = {'entry': entry, 'creationDate': new Date(), 'uniqueId': uniqueId};
 
 			return newPost;
 		};

@@ -221,33 +221,40 @@ alert('fileName: ' + fileName);
 				var deferred = $q.defer();
 
 				if (Environment.isNative() === true) {
-					_cordovaReadDirectory(packagePath, appName).then(function(entries) {
+					_cordovaReadDirectory(packagePath, appName).then(function(filesInDir) {
 
-						if ((entries == null) || (entries == undefined) || (entries.length == 0)) {
+						if ((filesInDir == null) || (filesInDir == undefined) || (filesInDir.length == 0)) {
 							deferred.resolve([]);
 						}
 
 						var items = [];
 						var dirName = getDirName(packagePath, appName);
 
-						alert('got ' + entries.length + " items");
+						alert('got ' + filesInDir.length + ' items');
 
-						entries.forEach(function(entry, index) {
-							var fileName = entry.name;
+						var getFileInDir = function(fileInDir, doneCallback) {
+							var fileName = fileInDir.name;
 							alert('grabbing: ' + fileName);
 
 							_cordovaReadFile(dirName, fileName).then(function(response) {
 								alert('got data: ' + JSON.stringify(response));
 								items.push(response);
+								doneCallback(null);
 							}, function(response) {
-								alert('error:' + response.message);
+								doneCallback(response.message);
 							});
+						};
 
-						})();
+						async.eachSeries(filesInDir, getFileInDir, function(err) {
+							if (err) {
+								alert('error: ' + err);
+								console.log(err);
+							}
+							else {
+								deferred.resolve(items);
+							}
+						});
 
-alert('loop done, resolving...');
-						deferred.resolve(items);
-alert('resolved');
 
 					}, function (response) {
 						alert('error:' + response.message);
