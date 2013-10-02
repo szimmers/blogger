@@ -225,33 +225,24 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 				}
 
 				// otherwise, we need to process each file in the directory by reading its contents
-				var items = [];
 				var dirName = getDirName(packagePath, appName);
 
-				// this is the callback method for the "each", below. it reads the file contents,
-				// pushes the result into the items array, then indicates it's done so the "each"
-				// can continue.
-				var getFileInDir = function(fileInDir, doneCallback) {
+				// use $q to collect all the results; we'll store the promises here
+				var promises = [];
+
+				for (var i=0; i < filesInDir.length; i++) {
+					var fileInDir = filesInDir[i];
 					var fileName = fileInDir.name;
 
-					_cordovaReadFile(dirName, fileName).then(function(response) {
-						items.push(response);
-						doneCallback(null);
-					}, function(response) {
-						doneCallback(response.message);
-					});
-				};
+					promises.push(_cordovaReadFile(dirName, fileName));
+				}
 
-				// process each file in series, then executes the closure method to
-				// resolve the promise.
-				async.eachSeries(filesInDir, getFileInDir, function(err) {
-					if (err) {
-						console.log(err);
+				// collect all the promise results, then resolve the main promise
+				$q.all(promises).then(
+					function (results) {
+						deferred.resolve(results);
 					}
-					else {
-						deferred.resolve(items);
-					}
-				});
+				);
 			});
 		}
 

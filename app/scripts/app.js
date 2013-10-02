@@ -30,7 +30,9 @@ angular.module('bloggerApp', ['services.BlogPostService', 'services.EnvironmentS
 								BlogPosts.get().then(function(response) {
 									deferred.resolve(response);
 								}, function(response) {
-									alert('could not get blog posts: ' + response.message);
+									var msg = 'could not get blog posts: ' + response.message;
+									alert(msg);
+									deferred.reject(msg);
 								});
 							}, function(response) {
 								console.log(response.message);
