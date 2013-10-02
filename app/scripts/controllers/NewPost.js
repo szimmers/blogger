@@ -5,8 +5,8 @@ angular.module('bloggerApp')
 		$scope.postNewEntry = function() {
 			BlogPosts.create($scope.entry).then(function() {
 				$location.path('/');
-			}, function() {
-				alert('Could not save entry');
+			}, function(response) {
+				alert('Could not save entry: ' + response.message);
 			});
 		};
 	});

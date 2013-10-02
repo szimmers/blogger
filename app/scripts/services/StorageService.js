@@ -3,6 +3,9 @@
 angular.module('services.StorageService', ['services.EnvironmentService'])
 	.service('Storage', function ($q, Environment, $timeout) {
 
+		/**
+		 * test data for webapp
+		 */
 		function _localRead(packagePath, appName) {
 
 			var deferred = $q.defer();
@@ -51,7 +54,6 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 		function getFileEntry(dirName, fileName) {
 
 			var deferred = $q.defer();
-
 			function gotFS(fileSystem) {
 				fileSystem.root.getDirectory(dirName, {create: true, exclusive: false}, gotDirectory, fail);
 			}
@@ -61,12 +63,13 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 			}
 
 			function gotFileEntry(fileEntry) {
-				deferred.resolve(fileEntry);
+				$timeout(function() {
+					deferred.resolve(fileEntry);
+				});
 			}
 
 			function fail(error) {
 				console.log(error.code);
-				alert('getFileEntry: ' + error.code);
 				var errorObject = {'message' : error.code};
 				deferred.reject(errorObject);
 			}
@@ -89,7 +92,9 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 			}
 
 			function gotDirectoryEntry(directoryEntry) {
-				deferred.resolve(directoryEntry);
+				$timeout(function() {
+					deferred.resolve(directoryEntry);
+				});
 			}
 
 			function fail(error) {
@@ -133,7 +138,6 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 				}
 
 				fileEntry.file(gotFile, fail);
-
 			});
 
 			return deferred.promise;
@@ -159,9 +163,10 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 				var reader = directoryEntry.createReader();
 
 				reader.readEntries(function(entries) {
-					deferred.resolve(entries);
+					$timeout(function() {
+						deferred.resolve(entries);
+					});
 				}, fail);
-
 			});
 
 			return deferred.promise;
@@ -179,23 +184,15 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 			var key = getKey(keyFieldName, data);
 			var fileName = getFileName(appName, key);
 
-/*
-			alert('data: ' + JSON.stringify(data));
-			alert('keyFieldName: ' + keyFieldName);
-alert('dirName: ' + dirName);
-alert('key: ' + key);
-alert('fileName: ' + fileName);
-*/
 			getFileEntry(dirName, fileName).then(function(fileEntry) {
 
-//alert('got file entry for writing');
 				function gotFileWriter(writer) {
 					writer.onwriteend = function(evt) {
-					//alert('written!');
-						deferred.resolve(data);
+						$timeout(function() {
+							deferred.resolve(data);
+						});
 					};
 
-					//alert('trying to write');
 					writer.seek(0);
 					writer.write(JSON.stringify(data));
 				}
@@ -207,7 +204,6 @@ alert('fileName: ' + fileName);
 				}
 
 				fileEntry.createWriter(gotFileWriter, fail);
-
 			});
 
 			return deferred.promise;
@@ -239,7 +235,6 @@ alert('fileName: ' + fileName);
 					var fileName = fileInDir.name;
 
 					_cordovaReadFile(dirName, fileName).then(function(response) {
-						//alert('got data: ' + JSON.stringify(response));
 						items.push(response);
 						doneCallback(null);
 					}, function(response) {
@@ -257,10 +252,6 @@ alert('fileName: ' + fileName);
 						deferred.resolve(items);
 					}
 				});
-
-
-			}, function (response) {
-				alert('error:' + response.message);
 			});
 		}
 
@@ -278,7 +269,7 @@ alert('fileName: ' + fileName);
 					_localRead(packagePath, appName).then(function(response) {
 						deferred.resolve(response);
 					}, function(response) {
-						alert('error:' + response.message);
+						deferred.reject(response);
 					});
 				}
 

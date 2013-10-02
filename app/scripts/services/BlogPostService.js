@@ -47,7 +47,6 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 
 				if (_posts === null) {
 					Storage.get(PACKAGE_PATH, APP_NAME, KEY_FIELDNAME).then(function(response) {
-						//alert('fulfilled 2:' + response);
 						_posts = response;
 						deferred.resolve(_posts);
 					}, function() {

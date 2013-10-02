@@ -29,6 +29,8 @@ angular.module('bloggerApp', ['services.BlogPostService', 'services.EnvironmentS
 							Environment.waitForDeviceReady().then(function() {
 								BlogPosts.get().then(function(response) {
 									deferred.resolve(response);
+								}, function(response) {
+									alert('could not get blog posts: ' + response.message);
 								});
 							}, function(response) {
 								console.log(response.message);
