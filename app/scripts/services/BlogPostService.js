@@ -46,7 +46,7 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 				var deferred = $q.defer();
 
 				if (_posts === null) {
-					Storage.get(PACKAGE_PATH, APP_NAME, KEY_FIELDNAME).then(function(response) {
+					Storage.get(PACKAGE_PATH, APP_NAME).then(function(response) {
 						_posts = response;
 						deferred.resolve(_posts);
 					}, function() {
@@ -60,6 +60,7 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 
 				return deferred.promise;
 			},
+
 			/**
 			 * given an id, returns the matching post
 			 * @param postId
@@ -82,6 +83,7 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 
 				return deferred.promise;
 			},
+
 			/**
 			 * creates a new blog entry
 			 * @param entry
@@ -105,6 +107,24 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 				}, function(response) {
 					console.log(response.message);
 				});
+			},
+
+			/**
+			 * deletes a blog entry
+			 * @param entry
+			 * @returns {*}
+			 */
+			delete: function(post) {
+				var deferred = $q.defer();
+
+				Storage.delete(PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post).then(function(response) {
+					Storage.get(PACKAGE_PATH, APP_NAME).then(function(response) {
+						_posts = response;
+						deferred.resolve(response);
+					});
+				});
+
+				return deferred.promise;
 			}
 		};
 	});
