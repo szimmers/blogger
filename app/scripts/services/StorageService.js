@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('services.StorageService', ['services.EnvironmentService'])
-	.service('Storage', function ($q, Environment, $timeout) {
+	.service('Storage', function ($rootScope, $q, Environment, $timeout) {
 
 		/**
 		 * test data for webapp
@@ -241,6 +241,33 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 		};
 
 		/**
+		 * Deletes all files from the specified directory
+		 */
+		var _cordovaDeleteAll = function(packagePath, appName) {
+
+			var deferred = $q.defer();
+
+			var dirName = getDirName(packagePath, appName);
+
+			getDirectoryEntry(dirName).then(function(directoryEntry) {
+
+				function fail(error) {
+					console.log(error.code);
+					var errorObject = {'message' : error.code};
+					deferred.reject(errorObject);
+				}
+
+				directoryEntry.removeRecursively(function(response) {
+					$timeout(function () {
+                	    deferred.resolve(response);
+                	});
+				}, fail);
+			});
+
+			return deferred.promise;
+		};
+
+		/**
 		 * Given the package and app name, read the contents of the directory and return an array
 		 * of saved objects. Each file in the directory represents a saved JSON object. The method
 		 * resolves/rejects the provided $q variable, deferred.
@@ -325,6 +352,21 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 					var dirName = getDirName(packagePath, appName);
 					var fileEntry = {'fullPath': dirName, 'name': fileName};
 					deferred.resolve(data);
+				}
+
+				return deferred.promise;
+			},
+
+			deleteAll: function(packagePath, appName) {
+				var deferred = $q.defer();
+
+				if (Environment.isNative() === true) {
+					_cordovaDeleteAll(packagePath, appName).then(function(response) {
+						deferred.resolve(response);
+					});
+				}
+				else {
+					deferred.resolve([]);
 				}
 
 				return deferred.promise;

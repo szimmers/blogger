@@ -5,26 +5,6 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 	.constant('APP_NAME', 'blogger3')
 	.constant('KEY_FIELDNAME', 'uniqueId')
 	.service('BlogPosts', function ($http, $q, Storage, PACKAGE_PATH, APP_NAME, KEY_FIELDNAME) {
-		// get stores the posts for later retrieval by id
-		var _posts = null;
-
-		/**
-		 * given an id, finds the matching post from the previously loaded posts.
-		 * @param postId
-		 * @returns {*}
-		 * @private
-		 */
-		var _getById = function(postId) {
-			var i, len;
-
-			for (i=0, len = _posts.length; i < len; i++) {
-				var post = _posts[i];
-
-				if ((post !== null) && (post.uniqueId == postId)) {
-					return post;
-				}
-			}
-		};
 
 		/**
 		 * given some user-defined text, create and return a blog post
@@ -45,41 +25,11 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 			get: function() {
 				var deferred = $q.defer();
 
-				if (_posts === null) {
-					Storage.get(PACKAGE_PATH, APP_NAME).then(function(response) {
-						_posts = response;
-						deferred.resolve(_posts);
-					}, function() {
-						_posts = [];
-						deferred.resolve([]);
-					});
-				}
-				else {
-					deferred.resolve(_posts);
-				}
-
-				return deferred.promise;
-			},
-
-			/**
-			 * given an id, returns the matching post
-			 * @param postId
-			 * @returns {*}
-			 */
-			getById: function(postId) {
-				var deferred = $q.defer(),
-					post;
-
-				if (_posts === null) {
-					this.get().then(function() {
-						post = _getById(postId);
-						deferred.resolve(post);
-					});
-				}
-				else {
-					post = _getById(postId);
-					deferred.resolve(post);
-				}
+				Storage.get(PACKAGE_PATH, APP_NAME).then(function(response) {
+					deferred.resolve(response);
+				}, function() {
+					deferred.resolve([]);
+				});
 
 				return deferred.promise;
 			},
@@ -93,20 +43,15 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 				var that = this;
 				var post = _createPostFromEntry(entry);
 
-				return Storage.save(PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post).then(function(response) {
-					if (_posts === null) {
-						that.get().then(function() {
-							_posts.push(response);
-							return _posts;
-						});
-					}
-					else {
-						_posts.push(response);
-						return _posts;
-					}
-				}, function(response) {
-					console.log(response.message);
+				var deferred = $q.defer();
+
+				Storage.save(PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post).then(function() {
+					Storage.get(PACKAGE_PATH, APP_NAME).then(function(response) {
+						deferred.resolve(response);
+					});
 				});
+
+				return deferred.promise;
 			},
 
 			/**
@@ -117,9 +62,24 @@ angular.module('services.BlogPostService', ['services.StorageService'])
 			delete: function(post) {
 				var deferred = $q.defer();
 
-				Storage.delete(PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post).then(function(response) {
+				Storage.delete(PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post).then(function() {
 					Storage.get(PACKAGE_PATH, APP_NAME).then(function(response) {
-						_posts = response;
+						deferred.resolve(response);
+					});
+				});
+
+				return deferred.promise;
+			},
+
+			/**
+			 * deletes all blog entries
+			 * @returns {*}
+			 */
+			deleteAll: function() {
+				var deferred = $q.defer();
+
+				Storage.deleteAll(PACKAGE_PATH, APP_NAME).then(function() {
+					Storage.get(PACKAGE_PATH, APP_NAME).then(function(response) {
 						deferred.resolve(response);
 					});
 				});

@@ -1,13 +1,21 @@
 <div class="hero-unit">
 	<ul>
 		<li class="bullet-less" ng-repeat="post in posts">
-			<div class="btn"> {{post.creationDate | date:'medium' }} </div>
-			<div>{{post.entry}}</div>
-			<button ng-click="deletePost(post)">Delete</button>
+
+			<form class="well">
+				<div>{{post.entry}}</div>
+
+				<div class="container">
+					<button type="button" class="btn btn-success btn-small"> {{post.creationDate | date:'medium' }} </button>
+					<button type="button" class="btn btn-warning btn-small" ng-click="deletePost(post)">Delete</button>
+				</div>
+			</form>
+
 		</li>
 	</ul>
 
-	<a class="btn" ng-href="#/new" >
-		New Post
-	</a>
+	<div class="container">
+		<a class="btn btn-primary" ng-href="#/new" > New Post </a>
+		<button type="button" class="btn btn-danger" ng-click="deleteAll()">Delete All</button>
+	</div>
 </div>
