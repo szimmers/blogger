@@ -242,26 +242,65 @@ angular.module('services.StorageService', ['services.EnvironmentService'])
 
 		/**
 		 * Deletes all files from the specified directory
+		 *
+		 * Note: ideally, we'd like to use directoryEntry.removeRecursively() here,
+		 * but that does not work on Android devices. simulator, yes, devices, no.
 		 */
 		var _cordovaDeleteAll = function(packagePath, appName) {
 
 			var deferred = $q.defer();
 
-			var dirName = getDirName(packagePath, appName);
+			_cordovaReadDirectory(packagePath, appName).then(function(filesInDir) {
 
-			getDirectoryEntry(dirName).then(function(directoryEntry) {
+				// removes each file as it is found
+				function removeFile(dirName, fileName) {
 
-				function fail(error) {
-					console.log(error.code);
-					var errorObject = {'message' : error.code};
-					deferred.reject(errorObject);
+					var removeFileDeferred = $q.defer();
+
+					getFileEntry(dirName, fileName).then(function(fileEntry) {
+
+						function removed(removedEntry) {
+							$timeout(function() {
+								removeFileDeferred.resolve(removedEntry);
+							});
+						}
+
+						function fail(error) {
+							console.log(error.code);
+							var errorObject = {'message' : error.code};
+							removeFileDeferred.reject(errorObject);
+						}
+
+						fileEntry.remove(removed, fail);
+					});
+
+					return removeFileDeferred.promise;
+				};
+
+				// if the directory is empty, we can resolve with an empty array
+				if ((filesInDir == null) || (filesInDir == undefined) || (filesInDir.length == 0)) {
+					deferred.resolve(filesInDir);
 				}
 
-				directoryEntry.removeRecursively(function(response) {
-					$timeout(function () {
-                	    deferred.resolve(response);
-                	});
-				}, fail);
+				// otherwise, we need to remove each file
+				var dirName = getDirName(packagePath, appName);
+
+				// use $q to collect all the results; we'll store the promises here
+				var promises = [];
+
+				for (var i=0; i < filesInDir.length; i++) {
+					var fileInDir = filesInDir[i];
+					var fileName = fileInDir.name;
+
+					promises.push(removeFile(dirName, fileName));
+				}
+
+				// collect all the promise results, then resolve the main promise
+				$q.all(promises).then(
+					function (results) {
+						deferred.resolve(results);
+					}
+				);
 			});
 
 			return deferred.promise;
