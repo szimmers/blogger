@@ -1,7 +1,9 @@
 'use strict';
 
 angular.module('services.Blogger', ['services.CordovaAPI']);
+//angular.module('services.Blogger', ['services.webapp']);
 angular.module('services.CordovaAPI', ['services.Framework']);
+//angular.module('services.webapp', ['services.Framework']);
 angular.module('services.Framework', ['services.Cordova']);
 angular.module('services.Cordova', []);
 

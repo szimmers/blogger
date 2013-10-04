@@ -6,27 +6,7 @@ angular.module('services.CordovaAPI')
 	 * file. each app writes to its own directory. the paths and file names are derived from
 	 * values passed in: packagePath, appName, keyFieldName, data.
 	 */
-	.service('Storage', function ($q, Environment, $timeout) {
-
-		/**
-		 * test data for webapp
-		 */
-		function _localRead(packagePath, appName) {
-
-			var deferred = $q.defer();
-
-			var data = [
-				{'uniqueId':1, 'creationDate': '2013-09-25T18:27:02.966Z', 'entry':'i like soup'},
-				{'uniqueId':2, 'creationDate': '2013-09-25T18:28:33.123Z', 'entry':'soup is good food.'},
-				{'uniqueId':3, 'creationDate': '2013-09-25T18:34:55.789Z', 'entry':'some hats are shaped like oklahoma\nsome hats are shaped like the Zuiderzee!'}
-			];
-
-			$timeout(function() {
-				deferred.resolve(data);
-			});
-
-			return deferred.promise;
-		}
+	.service('Storage', function ($q, $timeout) {
 
 		/**
 		 * formats and returns a directory name
@@ -313,10 +293,11 @@ angular.module('services.CordovaAPI')
 
 		/**
 		 * Given the package and app name, read the contents of the directory and return an array
-		 * of saved objects. Each file in the directory represents a saved JSON object. The method
-		 * resolves/rejects the provided $q variable, deferred.
+		 * of saved objects. Each file in the directory represents a saved JSON object.
 		 */
-		function getDirectoryContents(packagePath, appName, deferred) {
+		function _getDirectoryContents(packagePath, appName) {
+
+			var deferred = $q.defer();
 
 			// read the directory contents
 			_cordovaReadDirectory(packagePath, appName).then(function(filesInDir) {
@@ -346,6 +327,8 @@ angular.module('services.CordovaAPI')
 					}
 				);
 			});
+
+			return deferred.promise;
 		}
 
 		/**
@@ -355,16 +338,9 @@ angular.module('services.CordovaAPI')
 			get: function(packagePath, appName) {
 				var deferred = $q.defer();
 
-				if (Environment.isNative() === true) {
-					getDirectoryContents(packagePath, appName, deferred);
-				}
-				else {
-					_localRead(packagePath, appName).then(function(response) {
-						deferred.resolve(response);
-					}, function(response) {
-						deferred.reject(response);
-					});
-				}
+				_getDirectoryContents(packagePath, appName).then(function(response) {
+					deferred.resolve(response);
+				});
 
 				return deferred.promise;
 			},
@@ -372,14 +348,9 @@ angular.module('services.CordovaAPI')
 			save: function(packagePath, appName, keyFieldName, data) {
 				var deferred = $q.defer();
 
-				if (Environment.isNative() === true) {
-					_cordovaSave(packagePath, appName, keyFieldName, data).then(function(response) {
-						deferred.resolve(response);
-					});
-				}
-				else {
-					deferred.resolve(data);
-				}
+				_cordovaSave(packagePath, appName, keyFieldName, data).then(function(response) {
+					deferred.resolve(response);
+				});
 
 				return deferred.promise;
 			},
@@ -387,16 +358,9 @@ angular.module('services.CordovaAPI')
 			delete: function(packagePath, appName, keyFieldName, data) {
 				var deferred = $q.defer();
 
-				if (Environment.isNative() === true) {
-					_cordovaDelete(packagePath, appName, keyFieldName, data).then(function(response) {
-						deferred.resolve(response);
-					});
-				}
-				else {
-					var dirName = getDirName(packagePath, appName);
-					var fileEntry = {'fullPath': dirName, 'name': fileName};
-					deferred.resolve(data);
-				}
+				_cordovaDelete(packagePath, appName, keyFieldName, data).then(function(response) {
+					deferred.resolve(response);
+				});
 
 				return deferred.promise;
 			},
@@ -404,14 +368,9 @@ angular.module('services.CordovaAPI')
 			deleteAll: function(packagePath, appName) {
 				var deferred = $q.defer();
 
-				if (Environment.isNative() === true) {
-					_cordovaDeleteAll(packagePath, appName).then(function(response) {
-						deferred.resolve(response);
-					});
-				}
-				else {
-					deferred.resolve([]);
-				}
+				_cordovaDeleteAll(packagePath, appName).then(function(response) {
+					deferred.resolve(response);
+				});
 
 				return deferred.promise;
 			}
