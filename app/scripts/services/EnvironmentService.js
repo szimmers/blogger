@@ -31,7 +31,7 @@ angular.module('services.Framework')
 			waitForDeviceReady: function() {
 				var deferred = $q.defer();
 
-				if (isNative === false) {
+				if (this.isNative() === false) {
 					var ready = {'message': 'webapp is ready'};
 					deferred.resolve(ready);	
 				}
