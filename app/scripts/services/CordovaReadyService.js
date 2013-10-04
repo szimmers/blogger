@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('services.CordovaReadyService', [])
+angular.module('services.Cordova')
 	/**
 	 * in ms, timeout value for the service
 	 */

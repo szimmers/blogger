@@ -1,9 +1,24 @@
 'use strict';
 
-angular.module('services.BlogPostService', ['services.StorageService'])
+angular.module('services.Blogger')
+	/**
+	 * defines the package for the app for storage
+	 */
 	.constant('PACKAGE_PATH', 'net.digitalprimates')
+
+	/**
+	 * defines the name the app for storage
+	 */
 	.constant('APP_NAME', 'blogger3')
+
+	/**
+	 * defines the name of the field in the data which storage will use for keying off of
+	 */
 	.constant('KEY_FIELDNAME', 'uniqueId')
+
+	/**
+	 * service for creating, getting, saving blog posts
+	 */
 	.service('BlogPosts', function ($http, $q, Storage, PACKAGE_PATH, APP_NAME, KEY_FIELDNAME) {
 
 		/**

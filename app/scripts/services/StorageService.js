@@ -1,7 +1,12 @@
 'use strict';
 
-angular.module('services.StorageService', ['services.EnvironmentService'])
-	.service('Storage', function ($rootScope, $q, Environment, $timeout) {
+angular.module('services.CordovaAPI')
+	/**
+	 * wraps the cordova FILE API for saving JSON objects. each object is saved as its own
+	 * file. each app writes to its own directory. the paths and file names are derived from
+	 * values passed in: packagePath, appName, keyFieldName, data.
+	 */
+	.service('Storage', function ($q, Environment, $timeout) {
 
 		/**
 		 * test data for webapp

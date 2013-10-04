@@ -1,6 +1,11 @@
 'use strict';
 
-angular.module('bloggerApp', ['services.BlogPostService', 'services.EnvironmentServiceProvider', 'services.EnvironmentService'])
+angular.module('services.Blogger', ['services.CordovaAPI']);
+angular.module('services.CordovaAPI', ['services.Framework']);
+angular.module('services.Framework', ['services.Cordova']);
+angular.module('services.Cordova', []);
+
+angular.module('bloggerApp', ['services.Blogger', 'services.Framework'])
 	/**
 	 * when first run, determine if we're native or not and set it on root scope
 	 */

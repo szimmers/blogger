@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('services.EnvironmentService', ['services.CordovaReadyService'])
+angular.module('services.Framework')
 	/**
 	 * provides to services the ability to determine if app is running
 	 * on a device.
@@ -31,13 +31,19 @@ angular.module('services.EnvironmentService', ['services.CordovaReadyService'])
 			waitForDeviceReady: function() {
 				var deferred = $q.defer();
 
-				// this service resolves immediately if ready
-				CordovaReady.get().then(function(response) {
-					_deviceReady = true;
-					deferred.resolve(response);
-				}, function(response) {
-					deferred.reject(response.message);
-				});
+				if (isNative === false) {
+					var ready = {'message': 'webapp is ready'};
+					deferred.resolve(ready);	
+				}
+				else {
+					// this service resolves immediately if ready
+					CordovaReady.get().then(function(response) {
+						_deviceReady = true;
+						deferred.resolve(response);
+					}, function(response) {
+						deferred.reject(response.message);
+					});
+				}
 
 				return deferred.promise;
 			}

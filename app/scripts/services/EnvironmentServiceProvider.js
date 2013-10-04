@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('services.EnvironmentServiceProvider', [])
+angular.module('services.Framework')
 	/**
 	 * provides the ability, at module config, to determine if app is running
 	 * on a device.
