@@ -41,7 +41,9 @@
     </script>
 
     <script src="bower_components/jquery/jquery.js"></script>
+    <!-- @ifdef NATIVE -->
 	<script type="text/javascript" src="cordova.js"></script>
+    <!-- @endif -->
     <script src="bower_components/angular/angular.js"></script>
 
         <!-- build:js scripts/plugins.js -->
@@ -73,11 +75,16 @@
         <script src="scripts/controllers/NewPost.js"></script>
         <script src="scripts/services/CordovaReadyService.js"></script>
         <script src="scripts/services/EnvironmentService.js"></script>
-        <script src="scripts/services/cordova/StorageService.js"></script>
-        <!--
-        <script src="scripts/services/webapp/StorageService.js"></script>
-        -->
         <script src="scripts/services/EnvironmentServiceProvider.js"></script>
+
+        <!-- @ifdef NATIVE -->
+        <script src="scripts/services/cordova/StorageService.js"></script>
+        <!-- @endif -->
+
+        <!-- @ifdef WEBAPP -->
+        <script src="scripts/services/webapp/StorageService.js"></script>
+        <!-- @endif -->
+
         <!-- endbuild -->
 </body>
 </html>

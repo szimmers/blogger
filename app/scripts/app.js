@@ -1,9 +1,15 @@
 'use strict';
 
+// @ifdef NATIVE
 angular.module('services.Blogger', ['services.CordovaAPI']);
-//angular.module('services.Blogger', ['services.webapp']);
 angular.module('services.CordovaAPI', ['services.Framework']);
-//angular.module('services.webapp', ['services.Framework']);
+// @endif
+
+// @ifdef WEBAPP
+angular.module('services.Blogger', ['services.webapp']);
+angular.module('services.webapp', ['services.Framework']);
+// @endif
+
 angular.module('services.Framework', ['services.Cordova']);
 angular.module('services.Cordova', []);
 

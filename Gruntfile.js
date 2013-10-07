@@ -19,7 +19,7 @@ module.exports = function (grunt) {
   // configurable paths
   var yeomanConfig = {
     app: 'app',
-    dist: 'dist'
+	dist: '../../installapps/blogger/www'
   };
 
   try {
@@ -313,8 +313,47 @@ module.exports = function (grunt) {
           ]
         }
       }
-    }
+    },
+
+  /**
+   * Preprocessor
+   */
+	preprocess : {
+
+    // for webapps, currently, do nothing
+
+		webapp: {
+			options: {
+				context : {
+					WEBAPP: true
+				}
+			}
+		},
+
+    // for native, need to use pre-processor to set up cordova libraries
+
+		nativeindex: {
+			src: '<%= yeoman.app %>/index.html',
+			dest: '<%= yeoman.dist %>/index.html',
+			options: {
+				context : {
+					NATIVE: true
+				}
+			}
+		},
+		nativeapp: {
+			src: '<%= yeoman.app %>/scripts/app.js',
+			dest: '<%= yeoman.dist %>/scripts/app.js',
+			options: {
+				context : {
+					NATIVE: true
+				}
+			}
+		}
+	}
   });
+
+	grunt.loadNpmTasks('grunt-preprocess');
 
   grunt.registerTask('server', function (target) {
     if (target === 'dist') {
@@ -323,6 +362,7 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
+      'preprocess:webapp',
       'concurrent:server',
       'autoprefixer',
       'connect:livereload',
@@ -330,6 +370,14 @@ module.exports = function (grunt) {
       'watch'
     ]);
   });
+
+  // native task copies webapp code to native area, runs preprocessor
+	grunt.registerTask('native', function(target) {
+		grunt.task.run([
+			'preprocess:nativeindex',
+			'preprocess:nativeapp',
+		]);
+	});
 
   grunt.registerTask('test', [
     'clean:server',
@@ -360,3 +408,5 @@ module.exports = function (grunt) {
     'build'
   ]);
 };
+
+
