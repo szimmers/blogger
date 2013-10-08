@@ -1,22 +1,22 @@
 'use strict';
 
-describe('Controller: NewpostCtrl', function () {
+describe('Controller: NewPostCtrl', function () {
 
-  // load the controller's module
-  beforeEach(module('bloggerApp'));
+	describe('when i post a new entry', function() {
 
-  var NewpostCtrl,
-    scope;
+		beforeEach(module('bloggerApp'));
 
-  // Initialize the controller and a mock scope
-  beforeEach(inject(function ($controller, $rootScope) {
-    scope = $rootScope.$new();
-    NewpostCtrl = $controller('NewpostCtrl', {
-      $scope: scope
-    });
-  }));
+		var NewpostCtrl, scope;
 
-  it('should attach a list of awesomeThings to the scope', function () {
-    expect(scope.awesomeThings.length).toBe(3);
-  });
+		beforeEach(inject(function ($controller, $rootScope) {
+			scope = $rootScope.$new();
+			NewpostCtrl = $controller('NewPostCtrl', {
+				$scope: scope
+			});
+		}));
+
+		it ('should route me to the main page', inject(function() {
+
+		}));
+	});
 });

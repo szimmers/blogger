@@ -56,7 +56,6 @@ angular.module('services.Blogger')
 			 * @returns {*}
 			 */
 			create: function(entry) {
-				var that = this;
 				var post = _createPostFromEntry(entry);
 
 				var deferred = $q.defer();

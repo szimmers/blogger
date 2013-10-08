@@ -4,59 +4,196 @@ describe('Service: BlogPostService', function () {
 
 	describe('when i need posts', function() {
 		beforeEach(module('bloggerApp'));
-		beforeEach(module('services'));
+		beforeEach(module('services.Blogger'));
 
-/*
-		afterEach(function() {
-			$httpBackend.verifyNoOutstandingExpectation();
-			$httpBackend.verifyNoOutstandingRequest();
+		var service, scope;
+
+		// mock for Storage service
+		beforeEach(function () {
+
+			var getDeferred, saveDeferred, savedPosts = [];
+
+			var mockStorageService = {
+				get: function(PACKAGE_PATH, APP_NAME) {
+					getDeferred.resolve(savedPosts);
+					return getDeferred.promise;
+				},
+				save: function (PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post) {
+					savedPosts.push(post);
+					saveDeferred.resolve(post);
+					return saveDeferred.promise;
+				}
+			};
+
+			module(function ($provide) {
+				$provide.value('Storage', mockStorageService);
+			});
+
+			inject(function($q) {
+				getDeferred = $q.defer();
+				saveDeferred = $q.defer();
+			})
 		});
-		*/
 
-		var service, $httpBackend, scope, posts;
+		beforeEach(inject(function ($injector, $rootScope) {
 
-		beforeEach(inject(function ($injector, $rootScope/*, BASE_URL*/) {
+			scope = $rootScope.$new();
 
-			posts = [
-				{'uniqueId':1, 'creationDate': '2013-08-10', 'entry':'i like soup'},
-				{'uniqueId':2, 'creationDate': '2013-08-10', 'entry':'soup is good food.'},
-				{'uniqueId':3, 'creationDate': '2013-08-08', 'entry':'some hats are shaped like oklahoma\nsome hats are shaped like the Zuiderzee!'}
-			];
+			service = $injector.get('BlogPosts');
 
-/*
-			var url = BASE_URL + '/services/project/';
+			service.create('i like soup.');
+			service.create('soup is good food.');
+		}));
 
-			$httpBackend = $injector.get('$httpBackend');
-			$httpBackend.expectGET(url).respond(200, projects);
- */
+		it('should return them', inject(function () {
+
+			service.get().then(function(response) {
+				scope.data = response;
+			});
+
+			scope.$apply();
+
+			expect(scope.data.length).toEqual(2);
+		}));
+
+	});
+
+	describe('when i create a post', function() {
+		beforeEach(module('bloggerApp'));
+		beforeEach(module('services.Blogger'));
+
+		var service, scope;
+
+		// mock for Storage service
+		beforeEach(function () {
+
+			var getDeferred, saveDeferred, savedPosts = [];
+
+			var mockStorageService = {
+				get: function(PACKAGE_PATH, APP_NAME) {
+					getDeferred.resolve(savedPosts);
+					return getDeferred.promise;
+				},
+				save: function (PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post) {
+					savedPosts.push(post);
+					saveDeferred.resolve(post);
+					return saveDeferred.promise;
+				}
+			};
+
+			module(function ($provide) {
+				$provide.value('Storage', mockStorageService);
+			});
+
+			inject(function($q) {
+				getDeferred = $q.defer();
+				saveDeferred = $q.defer();
+			})
+		});
+
+		beforeEach(inject(function ($injector, $rootScope) {
 
 			scope = $rootScope.$new();
 
 			service = $injector.get('BlogPosts');
 		}));
 
-		it('should return the blog posts', inject(function () {
+		it('should be available in the get', inject(function () {
 
-			var promise = service.get().then(function(response) {
+			var entry = 'i like soup.';
+
+			service.create(entry).then(function(response) {
 				scope.data = response;
 			});
 
-			//$httpBackend.flush();
 			scope.$apply();
 
-			expect(scope.data).toEqual(posts);
+			expect(scope.data[0].entry).toEqual(entry);
 		}));
 
-		it('should return the post by id', inject(function () {
-
-			var promise = service.getById(1).then(function(response) {
-				scope.data = response;
-			});
-
-			//$httpBackend.flush();
-			scope.$apply();
-
-			expect(scope.data).toEqual(posts[0]);
-		}));
 	});
+
+	describe('when i want to delete', function() {
+		beforeEach(module('bloggerApp'));
+		beforeEach(module('services.Blogger'));
+
+		var service, scope, savedPosts = [];
+
+		// mock for Storage service
+		beforeEach(function () {
+
+			var getDeferred, saveDeferred, deleteDeferred;
+
+			var mockStorageService = {
+				get: function(PACKAGE_PATH, APP_NAME) {
+					getDeferred.resolve(savedPosts);
+					return getDeferred.promise;
+				},
+				save: function (PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post) {
+					savedPosts.push(post);
+					saveDeferred.resolve(post);
+					return saveDeferred.promise;
+				},
+				// for convenience, just delete one that's easy to get to, instead
+				// of searching
+				delete: function (PACKAGE_PATH, APP_NAME, KEY_FIELDNAME, post) {
+					savedPosts.pop();
+					deleteDeferred.resolve(post);
+					return deleteDeferred.promise;
+				},
+				deleteAll: function (PACKAGE_PATH, APP_NAME) {
+					savedPosts.length = 0;
+					deleteDeferred.resolve([]);
+					return deleteDeferred.promise;
+				}
+			};
+
+			module(function ($provide) {
+				$provide.value('Storage', mockStorageService);
+			});
+
+			inject(function($q) {
+				getDeferred = $q.defer();
+				saveDeferred = $q.defer();
+				deleteDeferred = $q.defer();
+			})
+		});
+
+		beforeEach(inject(function ($injector, $rootScope) {
+
+			scope = $rootScope.$new();
+
+			service = $injector.get('BlogPosts');
+
+			service.create('i like soup.');
+			service.create('soup is good food.');
+			service.create('mmmm... soup.');
+		}));
+
+		it('deleting a single post should return the remainder', inject(function () {
+
+			var post = savedPosts[0];
+
+			service.delete(post).then(function(response) {
+				scope.data = response;
+			});
+
+			scope.$apply();
+
+			expect(scope.data.length).toEqual(2);
+		}));
+
+		it('deleting all the posts should return an empty list', inject(function () {
+
+			service.deleteAll().then(function(response) {
+				scope.data = response;
+			});
+
+			scope.$apply();
+
+			expect(scope.data.length).toEqual(0);
+		}));
+
+	});
+
 });

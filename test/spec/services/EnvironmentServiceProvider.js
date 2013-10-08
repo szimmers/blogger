@@ -2,17 +2,16 @@
 
 describe('Service: EnvironmentServiceProvider', function () {
 
-  // load the service's module
-  beforeEach(module('bloggerApp'));
+  beforeEach(module('services.Framework'));
 
-  // instantiate service
-  var EnvironmentServiceProvider;
-  beforeEach(inject(function (_EnvironmentServiceProvider_) {
-    EnvironmentServiceProvider = _EnvironmentServiceProvider_;
+  var service;
+
+  beforeEach(inject(function ($injector) {
+    service = $injector.get('EnvironmentProvider');
   }));
 
   it('should do something', function () {
-    expect(!!EnvironmentServiceProvider).toBe(true);
+    expect(!!service).toBe(true);
   });
 
 });

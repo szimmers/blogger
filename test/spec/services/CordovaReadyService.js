@@ -2,17 +2,16 @@
 
 describe('Service: CordovaReadyService', function () {
 
-  // load the service's module
-  beforeEach(module('bloggerApp'));
+  beforeEach(module('services.Cordova'));
 
-  // instantiate service
-  var CordovaReadyService;
-  beforeEach(inject(function (_CordovaReadyService_) {
-    CordovaReadyService = _CordovaReadyService_;
+  var service;
+
+  beforeEach(inject(function ($injector) {
+    service = $injector.get('CordovaReady');
   }));
 
   it('should do something', function () {
-    expect(!!CordovaReadyService).toBe(true);
+    expect(!!service).toBe(true);
   });
 
 });

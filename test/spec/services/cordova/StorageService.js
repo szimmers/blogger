@@ -2,17 +2,16 @@
 
 describe('Service: StorageService', function () {
 
-  // load the service's module
-  beforeEach(module('bloggerApp'));
+  beforeEach(module('services.CordovaAPI'));
 
-  // instantiate service
-  var StorageService;
-  beforeEach(inject(function (_StorageService_) {
-    StorageService = _StorageService_;
+  var service;
+  
+  beforeEach(inject(function ($injector) {
+    service = $injector.get('Storage');
   }));
 
   it('should do something', function () {
-    expect(!!StorageService).toBe(true);
+    expect(!!service).toBe(true);
   });
 
 });
