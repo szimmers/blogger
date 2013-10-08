@@ -1,10 +1,11 @@
 'use strict';
 
+// @ifdef WEBAPP
 angular.module('services.webapp')
 	/**
 	 * mimics the cordova FILE API for saving JSON objects. all saves are done to memory.
 	 */
-	.service('Storage', function ($q) {
+	.service('Storage', ['$q', function ($q) {
 
 		var _items = [];
 
@@ -63,4 +64,5 @@ angular.module('services.webapp')
 				return deferred.promise;
 			}
 		}
-	});
+	}]);
+// @endif

@@ -1,7 +1,20 @@
-<project default="main">
+<project default="main" basedir="." >
+
+	<property name="nativeappdir" location="${basedir}/../../installapps/blogger" />
+	<property name="deploydir" location="${nativeappdir}/www" />
+
 	<target name="main">
-		<copy todir="../../installapps/blogger/www">
-			<fileset dir="app" includes="**" />
+
+		<delete>
+			<fileset dir="${deploydir}/styles" includes="**/*.css"/>
+			<fileset dir="${deploydir}/scripts" includes="**/*.html"/>
+			<fileset dir="${deploydir}/scripts" includes="**/*.js"/>
+		</delete>
+
+		<copy todir="${deploydir}">
+			<fileset dir="dist" includes="**" />
 		</copy>
+
 	</target>
+
 </project>

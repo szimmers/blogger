@@ -18,7 +18,7 @@ angular.module('services.Cordova')
 	 * all promises are resolved with a 'message' property; when rejected, that property
 	 * will contain the reason string.
 	 */
-	.service('CordovaReady', function($q, $timeout, TIMEOUT_MS) {
+	.service('CordovaReady', ['$q', '$timeout', 'TIMEOUT_MS', function($q, $timeout, TIMEOUT_MS) {
 		var _ready = false;
 		var _listenerAdded = false;
 		var _timedOut = false;
@@ -64,5 +64,5 @@ angular.module('services.Cordova')
 				return deferred.promise;
 			}
 		};
-	});
+	}]);
 

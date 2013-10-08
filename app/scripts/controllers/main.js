@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('bloggerApp')
-	.controller('MainCtrl', function ($scope, posts, BlogPosts) {
+	.controller('MainCtrl', ['$scope', 'posts', 'BlogPosts', function ($scope, posts, BlogPosts) {
 		$scope.posts = posts;
 
 		$scope.deletePost = function(post) {
@@ -19,4 +19,4 @@ angular.module('bloggerApp')
 				alert('could not delete all posts: ' + response.message);
 			});
 		}
-	});
+	}]);

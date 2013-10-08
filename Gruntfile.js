@@ -19,7 +19,7 @@ module.exports = function (grunt) {
   // configurable paths
   var yeomanConfig = {
     app: 'app',
-	dist: '../../installapps/blogger/www'
+	  dist: 'dist'
   };
 
   try {
@@ -315,12 +315,12 @@ module.exports = function (grunt) {
       }
     },
 
-  /**
-   * Preprocessor
-   */
-	preprocess : {
+	/**
+	 * Preprocessor
+	 */
+	preprocess: {
 
-    // for webapps, currently, do nothing
+		// for webapps, currently, do nothing
 
 		webapp: {
 			options: {
@@ -330,22 +330,19 @@ module.exports = function (grunt) {
 			}
 		},
 
-    // for native, need to use pre-processor to set up cordova libraries
-
-		nativeindex: {
-			src: '<%= yeoman.app %>/index.html',
-			dest: '<%= yeoman.dist %>/index.html',
+		dist: {
+			src: [
+				'<%= yeoman.dist %>/scripts/*.js',
+				'<%= yeoman.dist %>/styles/*.(css,scss,sass)',
+				'<%= yeoman.dist %>/styles/**/*.(css,scss,sass)',
+				'<%= yeoman.dist %>/scripts/*.js',
+				'<%= yeoman.dist %>/scripts/**/*.js',
+				'<%= yeoman.dist %>/*.html',
+				'<%= yeoman.dist %>/**/*.html'
+			],
 			options: {
-				context : {
-					NATIVE: true
-				}
-			}
-		},
-		nativeapp: {
-			src: '<%= yeoman.app %>/scripts/app.js',
-			dest: '<%= yeoman.dist %>/scripts/app.js',
-			options: {
-				context : {
+				inline: true,
+				context: {
 					NATIVE: true
 				}
 			}
@@ -371,14 +368,6 @@ module.exports = function (grunt) {
     ]);
   });
 
-  // native task copies webapp code to native area, runs preprocessor
-	grunt.registerTask('native', function(target) {
-		grunt.task.run([
-			'preprocess:nativeindex',
-			'preprocess:nativeapp',
-		]);
-	});
-
   grunt.registerTask('test', [
     'clean:server',
     'concurrent:test',
@@ -394,7 +383,7 @@ module.exports = function (grunt) {
     'autoprefixer',
     'concat',
     'copy:dist',
-    'cdnify',
+	'preprocess:dist',
     'ngmin',
     'cssmin',
     'uglify',

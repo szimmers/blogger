@@ -19,7 +19,8 @@ angular.module('services.Blogger')
 	/**
 	 * service for creating, getting, saving blog posts
 	 */
-	.service('BlogPosts', function ($http, $q, Storage, PACKAGE_PATH, APP_NAME, KEY_FIELDNAME) {
+	.service('BlogPosts', ['$http', '$q', 'Storage', 'PACKAGE_PATH', 'APP_NAME', 'KEY_FIELDNAME',
+		function ($http, $q, Storage, PACKAGE_PATH, APP_NAME, KEY_FIELDNAME) {
 
 		/**
 		 * given some user-defined text, create and return a blog post
@@ -102,4 +103,4 @@ angular.module('services.Blogger')
 				return deferred.promise;
 			}
 		};
-	});
+	}]);

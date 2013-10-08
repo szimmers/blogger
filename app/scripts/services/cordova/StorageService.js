@@ -1,12 +1,13 @@
 'use strict';
 
+// @ifdef NATIVE
 angular.module('services.CordovaAPI')
 	/**
 	 * wraps the cordova FILE API for saving JSON objects. each object is saved as its own
 	 * file. each app writes to its own directory. the paths and file names are derived from
 	 * values passed in: packagePath, appName, keyFieldName, data.
 	 */
-	.service('Storage', function ($q, $timeout) {
+	.service('Storage', ['$q', '$timeout', function ($q, $timeout) {
 
 		/**
 		 * formats and returns a directory name
@@ -375,4 +376,5 @@ angular.module('services.CordovaAPI')
 				return deferred.promise;
 			}
 		}
-	});
+	}]);
+// @endif

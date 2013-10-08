@@ -5,7 +5,7 @@ angular.module('services.Framework')
 	 * provides to services the ability to determine if app is running
 	 * on a device.
 	 */
-	.service('Environment', function ($rootScope, $q, CordovaReady) {
+	.service('Environment', ['$rootScope', '$q', 'CordovaReady', function ($rootScope, $q, CordovaReady) {
 
 		var _deviceReady = false;
 
@@ -32,7 +32,7 @@ angular.module('services.Framework')
 				var deferred = $q.defer();
 
 				if (this.isNative() === false) {
-					var ready = {'message': 'webapp is ready'};
+					var ready = {'message': 'ready immediately'};
 					deferred.resolve(ready);	
 				}
 				else {
@@ -48,4 +48,4 @@ angular.module('services.Framework')
 				return deferred.promise;
 			}
 		};
-	});
+	}]);

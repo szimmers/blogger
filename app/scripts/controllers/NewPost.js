@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('bloggerApp')
-	.controller('NewPostCtrl', function ($scope, $location, BlogPosts) {
+	.controller('NewPostCtrl', ['$scope', '$location', 'BlogPosts', function ($scope, $location, BlogPosts) {
 		$scope.postNewEntry = function() {
 			BlogPosts.create($scope.entry).then(function() {
 				$location.path('/');
@@ -9,4 +9,4 @@ angular.module('bloggerApp')
 				alert('Could not save entry: ' + response.message);
 			});
 		};
-	});
+	}]);
