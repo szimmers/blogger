@@ -48,7 +48,7 @@ angular.module('services.Cordova')
 				else {
 					// startup logic -- add listener for device ready
 					if (_listenerAdded === false) {
-						var readyTimeout = $timeout(handleServiceTimeout, TIMEOUT_MS);
+						$timeout(handleServiceTimeout, TIMEOUT_MS);
 
 						_listenerAdded = true;
 

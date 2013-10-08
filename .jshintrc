@@ -1,4 +1,6 @@
 {
+  "white": false,
+  "devel": true,
   "node": true,
   "browser": true,
   "esnext": true,
@@ -7,7 +9,6 @@
   "curly": true,
   "eqeqeq": true,
   "immed": true,
-  "indent": 2,
   "latedef": true,
   "newcap": true,
   "noarg": true,

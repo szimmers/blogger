@@ -33,7 +33,7 @@ angular.module('services.Framework')
 
 				if (this.isNative() === false) {
 					var ready = {'message': 'ready immediately'};
-					deferred.resolve(ready);	
+					deferred.resolve(ready);
 				}
 				else {
 					// this service resolves immediately if ready

@@ -10,7 +10,7 @@ angular.module('bloggerApp')
 			}, function(response) {
 				alert('could not delete post: ' + response.message);
 			});
-		}
+		};
 
 		$scope.deleteAll = function() {
 			BlogPosts.deleteAll().then(function(response) {
@@ -18,5 +18,6 @@ angular.module('bloggerApp')
 			}, function(response) {
 				alert('could not delete all posts: ' + response.message);
 			});
-		}
+		};
+
 	}]);
