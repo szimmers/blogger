@@ -58,6 +58,53 @@ describe('Service: BlogPostService', function () {
 
 	});
 
+	describe('when getting posts fails', function() {
+		beforeEach(module('bloggerApp'));
+		beforeEach(module('services.Blogger'));
+
+		var service, scope;
+
+		// mock for Storage service
+		beforeEach(function () {
+
+			var getDeferred;
+
+			var mockStorageService = {
+				get: function(PACKAGE_PATH, APP_NAME) {
+					getDeferred.reject('get failed');
+					return getDeferred.promise;
+				}
+			};
+
+			module(function ($provide) {
+				$provide.value('Storage', mockStorageService);
+			});
+
+			inject(function($q) {
+				getDeferred = $q.defer();
+			})
+		});
+
+		beforeEach(inject(function ($injector, $rootScope) {
+
+			scope = $rootScope.$new();
+
+			service = $injector.get('BlogPosts');
+		}));
+
+		it('should return an empty list', inject(function () {
+
+			service.get().then(function(response) {
+				scope.data = response;
+			});
+
+			scope.$apply();
+
+			expect(scope.data.length).toEqual(0);
+		}));
+
+	});
+
 	describe('when i create a post', function() {
 		beforeEach(module('bloggerApp'));
 		beforeEach(module('services.Blogger'));

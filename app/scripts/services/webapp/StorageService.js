@@ -42,7 +42,7 @@ angular.module('services.webapp')
 						var deletedItem = _items.splice(i, 1);
 
 						found = true;
-						deferred.resolve(deletedItem);
+						deferred.resolve(deletedItem[0]);
 
 						break;
 					}
