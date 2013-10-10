@@ -40,6 +40,7 @@ angular.module('services.CordovaAPI')
 		function getFileEntry(dirName, fileName) {
 
 			var deferred = $q.defer();
+
 			function gotFS(fileSystem) {
 				fileSystem.root.getDirectory(dirName, {create: true, exclusive: false}, gotDirectory, fail);
 			}
@@ -124,6 +125,8 @@ angular.module('services.CordovaAPI')
 				}
 
 				fileEntry.file(gotFile, fail);
+			}, function(error) {
+				deferred.reject(error);
 			});
 
 			return deferred.promise;
@@ -153,6 +156,8 @@ angular.module('services.CordovaAPI')
 						deferred.resolve(entries);
 					});
 				}, fail);
+			}, function(error) {
+				deferred.reject(error);
 			});
 
 			return deferred.promise;
@@ -190,6 +195,8 @@ angular.module('services.CordovaAPI')
 				}
 
 				fileEntry.createWriter(gotFileWriter, fail);
+			}, function(error) {
+				deferred.reject(error);
 			});
 
 			return deferred.promise;
@@ -221,6 +228,8 @@ angular.module('services.CordovaAPI')
 				}
 
 				fileEntry.remove(removed, fail);
+			}, function(error) {
+				deferred.reject(error);
 			});
 
 			return deferred.promise;
@@ -287,6 +296,8 @@ angular.module('services.CordovaAPI')
 						deferred.resolve(results);
 					}
 				);
+			}, function(error) {
+				deferred.reject(error);
 			});
 
 			return deferred.promise;
@@ -327,6 +338,8 @@ angular.module('services.CordovaAPI')
 						deferred.resolve(results);
 					}
 				);
+			}, function(error) {
+				deferred.reject(error);
 			});
 
 			return deferred.promise;
@@ -341,6 +354,8 @@ angular.module('services.CordovaAPI')
 
 				_getDirectoryContents(packagePath, appName).then(function(response) {
 					deferred.resolve(response);
+				}, function(error) {
+					deferred.reject(error);
 				});
 
 				return deferred.promise;
@@ -351,6 +366,8 @@ angular.module('services.CordovaAPI')
 
 				_cordovaSave(packagePath, appName, keyFieldName, data).then(function(response) {
 					deferred.resolve(response);
+				}, function(error) {
+					deferred.reject(error);
 				});
 
 				return deferred.promise;
@@ -361,6 +378,8 @@ angular.module('services.CordovaAPI')
 
 				_cordovaDelete(packagePath, appName, keyFieldName, data).then(function(response) {
 					deferred.resolve(response);
+				}, function(error) {
+					deferred.reject(error);
 				});
 
 				return deferred.promise;
@@ -371,6 +390,8 @@ angular.module('services.CordovaAPI')
 
 				_cordovaDeleteAll(packagePath, appName).then(function(response) {
 					deferred.resolve(response);
+				}, function(error) {
+					deferred.reject(error);
 				});
 
 				return deferred.promise;
