@@ -2,16 +2,22 @@
 
 describe('Service: EnvironmentServiceProvider', function () {
 
-  beforeEach(module('services.Framework'));
+	describe('when the environment is not native', function() {
 
-  var service;
+		beforeEach(module('services.Framework'));
 
-  beforeEach(inject(function ($injector) {
-    service = $injector.get('EnvironmentProvider');
-  }));
+		var service, scope;
 
-  it('should do something', function () {
-    expect(!!service).toBe(true);
-  });
+		beforeEach(inject(function ($injector, $rootScope) {
+
+			scope = $rootScope.$new();
+
+			service = $injector.get('EnvironmentProvider');
+		}));
+
+		it('should indicate such when asked', function () {
+			expect(service.isNative()).toBeFalsy();
+		});
+	});
 
 });

@@ -10,10 +10,10 @@ angular.module('services.Framework')
 		this._isNative = false;
 
 		/**
-		 * when created, query the user agent to determine if we're on a device
+		 * when created, query the existence of the cordova object to determine if we're on a device
 		 */
 		this.$get = function() {
-			this._isNative = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/) !== null;
+			this._isNative = (window.cordova !== null) && (window.cordova !== undefined);
 			return this;
 		};
 
